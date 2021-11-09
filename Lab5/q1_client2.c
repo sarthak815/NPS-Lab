@@ -8,12 +8,14 @@
 #include<netinet/in.h>
 #include<fcntl.h>
 #include<sys/stat.h>
+#include<netdb.h>
+#include<errno.h>
 int main()
 {
 	int s,r,recb,sntb,x;
 
 	struct sockaddr_in server;
-	char buff[50],buff2[50];
+	char buff[50];
 	s=socket(AF_INET,SOCK_STREAM,0);
 	if(s==-1)
 	{
@@ -33,47 +35,35 @@ int main()
 		exit(0);
 	}
 	printf("\nSocket connected.");
-	
-	printf("\n\n");
-	int pid;
-	pid=fork();
-	while(1){
-	if(pid>0)
-	{
-		//parent
-        printf("Parent PID and PPID:%d and %d\n",getpid(),getppid());
 
-		recb=recv(s,buff,sizeof(buff),0);
-		if(recb==-1)
-		{
-		printf("\nMessage Recieving Failed");	
-		close(s);
-		exit(0);
-		}
-	if(strcmp(buff,"BYE")==0)
-		break;
-	printf("\nParent - Message Recieved: ");
-	printf("%s\n", buff);
-	}
-	else
-	{
-		//child
-		printf("Child: %d\n",pid);
-		printf("\nChild - Type Message: ");
-	scanf("%s", buff2);
+	strcpy(buff," Technology");
 
-	sntb=send(s,buff2,sizeof(buff2),0);
+	sntb=send(s,buff,sizeof(buff),0);
 	if(sntb==-1)
 	{
 		close(s);
 		printf("\nMessage Sending Failed");
 		exit(0);
 	}
-	if(strcmp(buff2,"BYE")==0)
-		break;
-	}
-}
 
+	struct hostent *host_entry;
+	int hostname;
+	char hostbuffer[256];
+	char *ipbuffer;
+	hostname=gethostname(hostbuffer,sizeof(hostbuffer));
+	host_entry=gethostbyname(hostbuffer);
+	ipbuffer = inet_ntoa(*((struct in_addr*)host_entry->h_addr_list[0]));
+	char ip[50];
+	strcpy(ip,ipbuffer);
+	strcat(ip,"    ");
+	printf("\nIP is: %s",ip);
+	sntb=send(s,ip,sizeof(ip),0);
+	if(sntb==-1)
+	{
+		close(s);
+		printf("\nMessage Sending Failed");
+		exit(0);
+	}
 	close(s);
 
 }
