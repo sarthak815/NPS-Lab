@@ -6,18 +6,14 @@
 #include<sys/stat.h>
 #include<fcntl.h>
 #include<string.h>
-#define MAXSIZE 50
-struct Student{
-    char name[50];
+#define MAXSIZE 90
+struct student{
+    char name[30];
+    char regno[30];
     char mobile[10];
-    char anum[50];
-    char op[30];
-};
-struct Newval{
-    char mobile[10];
-    char anum[50];
-};
-
+    int option;
+    int size_struct;
+}
 main()
 {
 int sockfd,retval;
@@ -40,77 +36,57 @@ if(retval==-1)
 printf("Connection error");
 
 }
-struct Student st[3];
-struct Newval nv[1];
-
-    printf("Enter from following options:\n1.Display\n2.Serach&Replace\n3.Display socket address\n4.Exit\n");
-    int n,i;
-    char ch;
-    scanf("%c",&ch);
-    
-    switch(ch){
-        case '1':
-            {
-            buff[0] = '1';
-            sentbytes=send(sockfd,buff,sizeof(buff),0);
+int j;
+for(j=0;;j++){
+    printf("Enter the following:\n1.Display\n2.Insert\n");
+    int ch,size_st,i;
+    struct student st[10];
+    scanf("%d",&ch);
+    if(ch==4){
+            st[0].option=4;
+            sentbytes=send(sockfd,(struct student *)&st,sizeof(st),0);
             if(sentbytes==-1)
             {
             printf("!!");
             close(sockfd);
             }
-            recedbytes=recv(sockfd,(struct Student *) &st,sizeof(st),0);
-            
-            n = sizeof(st);
-
-            for(i=0;i<3;i++){
-                printf("%s\n", st[i].name);
-                printf("%s\n",st[i].mobile);
-                printf("%s\n",st[i].anum);
-            }
-
-            close(sockfd);
-            break;
-            }
-        case '2':
+        break;
+    }
+    switch(ch){
+        case 1:
+            st[0].option=1;
+            sentbytes=send(sockfd,(struct student *)&st,sizeof(st),0);
+            if(sentbytes==-1)
             {
-                buff[0]='2';
-                sentbytes=send(sockfd,buff,sizeof(buff),0);
-                printf("Enter mobile number: ");
-                scanf("%s",nv[0].mobile);
-                //strcpy(nv[0].mobile,"12345678");
-                printf("Enter alphanumeric value: ");
-                scanf("%s",nv[0].anum);
-                if(sentbytes==-1)
-                {
-                printf("!!");
-                close(sockfd);
-                }
-                sentbytes=send(sockfd,(struct Newval *)&nv,sizeof(nv),0);
-                if(sentbytes==-1)
-                {
-                printf("!!");
-                close(sockfd);
-                }
-
-                recedbytes=recv(sockfd,(struct Student *) &st,sizeof(st),0);
-                printf("%s\n",st[0].op);
-                for(i=0;i<3;i++){
-                    printf("%s\n", st[i].name);
-                    printf("%s\n",st[i].mobile);
-                    printf("%s\n",st[i].anum);
-                }
-
-                close(sockfd);
-
-                break;
+            printf("!!");
+            close(sockfd);
+            }
+            recedbytes=recv(sockfd,(struct student *)&st,sizeof(st),0);
+            size_st = st[0].size_struct;
+            for(i=0;i<size_st;i++){
+                printf("%s\n%s\n%s\n",st[i].name,st[i].regno,st[i].mobile);
+            }
+            break;
+        case 2:
+            st[0].option=2;
+            printf("Enter values to be entered:\1.Name\n2.RegNo\n3.Mobile\n");
+            scanf("%s",st[0].name);
+            scanf("%s",st[0].regno);
+            scanf("%s",st[0].mobile);
+            sentbytes=send(sockfd,(struct student *)&st,sizeof(st),0);
+            if(sentbytes==-1)
+            {
+            printf("!!");
+            close(sockfd);
             }
         default:
             break;
+
     }
-    
-    
+
+}
 
 
 
-
+close(sockfd);
 }
